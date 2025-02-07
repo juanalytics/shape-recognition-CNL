@@ -1,0 +1,63 @@
+point={
+       'x':<integer>,
+       'y':<integer>
+    }
+    size= {
+       'width' : <integer>,
+       'height' : <integer>
+    }
+    
+    color = {
+      'red' : <integer>,
+      'green' : <integer>,
+      'blue' : <integer>
+    }
+    
+    //type is one of the following strings:  'ellipse', 'circle', 'triangle',  'rectangle', 'square', 'polygon' 
+    figure = {
+      'id' : <integer>,
+      'type' : <type>,
+      'color': <color>,
+      'points': ''
+    }
+
+    // For polygon and trangle figures, the points attribute is an array of points [<point>]
+    //For circle figure, the points attribute is an object { 'center':<point>, 'radius':<integer> }
+    //For ellipse figure, the points attribute is an object { 'center':<point>, 'radii':<size> }
+    //For square figure, the points attribute is an object { 'topleft':<point>, 'side':<integer> }
+    //For rectangle figure, the points attribute is an object { 'topleft':<point>, 'sides':<size> }
+    relation = {
+      'obj1' : <integer>,
+      'obj2' : <integer>
+    }
+    
+    //A relation indicates that object 'obj1' is behind object 'obj2'.
+     
+    scene={
+      'size' : <size>,
+      'background' : <color>,
+      'objects' : [
+         <object>
+      ]
+     'relations' : [
+       <relation>
+     ]
+    }
+
+    scene={
+          'size' : {
+               'width' : <integer>,
+               'height' : <integer>
+            },
+          'background' : color = {
+      'red' : <integer>,
+      'green' : <integer>,
+      'blue' : <integer>
+    },
+          'objects' : [
+             <object>
+          ]
+         'relations' : [
+           <relation>
+         ]
+        }
