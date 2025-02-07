@@ -1,0 +1,136 @@
+{
+    "size": {
+      "width": <integer>,
+      "height": <integer>
+    },
+    "background": {
+      "red": <integer>,
+      "green": <integer>,
+      "blue": <integer>
+    },
+    "objects": [
+      {
+        "id": <integer>,
+        "type": "polygon",
+        "color": {
+          "red": <integer>,
+          "green": <integer>,
+          "blue": <integer>
+        },
+        "points": [
+          {
+            "x": <integer>,
+            "y": <integer>
+          },
+          {
+            "x": <integer>,
+            "y": <integer>
+          },
+          {
+            "x": <integer>,
+            "y": <integer>
+          }
+        ]
+      },
+      {
+        "id": <integer>,
+        "type": "triangle",
+        "color": {
+          "red": <integer>,
+          "green": <integer>,
+          "blue": <integer>
+        },
+        "points": [
+          {
+            "x": <integer>,
+            "y": <integer>
+          },
+          {
+            "x": <integer>,
+            "y": <integer>
+          },
+          {
+            "x": <integer>,
+            "y": <integer>
+          }
+        ]
+      },
+      {
+        "id": <integer>,
+        "type": "circle",
+        "color": {
+          "red": <integer>,
+          "green": <integer>,
+          "blue": <integer>
+        },
+        "points": {
+          "center": {
+            "x": <integer>,
+            "y": <integer>
+          },
+          "radius": <integer>
+        }
+      },
+      {
+        "id": <integer>,
+        "type": "ellipse",
+        "color": {
+          "red": <integer>,
+          "green": <integer>,
+          "blue": <integer>
+        },
+        "points": {
+          "center": {
+            "x": <integer>,
+            "y": <integer>
+          },
+          "radii": {
+            "width": <integer>,
+            "height": <integer>
+          }
+        }
+      },
+      {
+        "id": <integer>,
+        "type": "square",
+        "color": {
+          "red": <integer>,
+          "green": <integer>,
+          "blue": <integer>
+        },
+        "points": {
+          "topleft": {
+            "x": <integer>,
+            "y": <integer>
+          },
+          "side": <integer>
+        }
+      },
+      {
+        "id": <integer>,
+        "type": "rectangle",
+        "color": {
+          "red": <integer>,
+          "green": <integer>,
+          "blue": <integer>
+        },
+        "points": {
+          "topleft": {
+            "x": <integer>,
+            "y": <integer>
+          },
+          "sides": {
+            "width": <integer>,
+            "height": <integer>
+          }
+        }
+      }
+    ],
+    "relations": [
+      {
+        "obj1": <integer>,
+        "obj2": <integer>
+      }
+    ]
+  }
+  

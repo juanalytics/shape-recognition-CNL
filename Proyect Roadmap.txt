@@ -1,0 +1,10 @@
+1. Definición del Proyecto y Requerimientos
+2. Diseño del Esquema de Datos y la Generación de JSON
+3. Generación del Dataset Sintético
+4. Preprocesamiento de Datos
+5. Diseño y Selección de la Arquitectura de la Red Neuronal
+6. Implementación del Modelo
+7. Evaluación y Validación
+8. Integración del Sistema y Generación de Salidas en JSON
+9. Pruebas Finales y Despliegue
+
