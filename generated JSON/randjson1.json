@@ -1,136 +1,132 @@
 {
     "size": {
-        "width": 646,
-        "height": 783
+        "width": 499,
+        "height": 139
     },
     "background": {
-        "red": 15,
-        "green": 82,
-        "blue": 211
+        "red": 76,
+        "green": 150,
+        "blue": 145
     },
     "objects": [
         {
             "id": 1,
-            "type": "circle",
+            "type": "square",
             "color": {
-                "red": 69,
-                "green": 222,
-                "blue": 221
+                "red": 170,
+                "green": 25,
+                "blue": 42
             },
             "points": {
-                "center": {
-                    "x": 127,
-                    "y": 140
+                "topleft": {
+                    "x": 311,
+                    "y": 39
                 },
-                "radius": 23,
-                "rotation": 2
+                "side": 30,
+                "rotation": 76
             }
         },
         {
             "id": 2,
-            "type": "rectangle",
+            "type": "ellipse",
             "color": {
-                "red": 221,
-                "green": 77,
-                "blue": 129
+                "red": 131,
+                "green": 243,
+                "blue": 77
             },
             "points": {
-                "topleft": {
-                    "x": 520,
-                    "y": 147
+                "center": {
+                    "x": 135,
+                    "y": 63
                 },
-                "sides": {
-                    "width": 118,
-                    "height": 52
+                "radii": {
+                    "width": 102,
+                    "height": 30
                 },
-                "rotation": 168
+                "rotation": 317
             }
         },
         {
             "id": 3,
-            "type": "ellipse",
-            "color": {
-                "red": 210,
-                "green": 54,
-                "blue": 202
-            },
-            "points": {
-                "center": {
-                    "x": 205,
-                    "y": 112
-                },
-                "radii": {
-                    "width": 51,
-                    "height": 84
-                },
-                "rotation": 169
-            }
-        },
-        {
-            "id": 4,
-            "type": "square",
-            "color": {
-                "red": 247,
-                "green": 155,
-                "blue": 80
-            },
-            "points": {
-                "topleft": {
-                    "x": 98,
-                    "y": 490
-                },
-                "side": 132,
-                "rotation": 94
-            }
-        },
-        {
-            "id": 5,
             "type": "triangle",
             "color": {
-                "red": 230,
-                "green": 103,
-                "blue": 10
+                "red": 0,
+                "green": 0,
+                "blue": 0
             },
             "points": {
                 "vertices": [
                     {
-                        "x": 261,
-                        "y": 624
+                        "x": 121,
+                        "y": 98
                     },
                     {
-                        "x": 198,
-                        "y": 654
+                        "x": 91,
+                        "y": 120
                     },
                     {
-                        "x": 233,
-                        "y": 714
+                        "x": 135,
+                        "y": 124
                     }
                 ],
-                "rotation": 266
+                "rotation": 127
             }
         },
         {
-            "id": 6,
-            "type": "square",
+            "id": 4,
+            "type": "triangle",
             "color": {
-                "red": 55,
-                "green": 9,
-                "blue": 9
+                "red": 24,
+                "green": 81,
+                "blue": 233
+            },
+            "points": {
+                "vertices": [
+                    {
+                        "x": 438,
+                        "y": 19
+                    },
+                    {
+                        "x": 432,
+                        "y": 34
+                    },
+                    {
+                        "x": 412,
+                        "y": 37
+                    }
+                ],
+                "rotation": 355
+            }
+        },
+        {
+            "id": 5,
+            "type": "rectangle",
+            "color": {
+                "red": 216,
+                "green": 30,
+                "blue": 53
             },
             "points": {
                 "topleft": {
-                    "x": 503,
-                    "y": 42
+                    "x": 249,
+                    "y": 54
                 },
-                "side": 45,
-                "rotation": 125
+                "sides": {
+                    "width": 138,
+                    "height": 57
+                },
+                "rotation": 77
             }
         }
     ],
     "relations": [
         {
-            "obj1": 3,
-            "obj2": 4
+            "obj1": 1,
+            "obj2": 2
+        },
+        {
+            "obj1": 2,
+            "obj2": 5
         }
     ]
 }
