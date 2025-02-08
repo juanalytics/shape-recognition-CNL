@@ -1,0 +1,127 @@
+{
+    "size": {
+        "width": 604,
+        "height": 698
+    },
+    "background": {
+        "red": 209,
+        "green": 189,
+        "blue": 212
+    },
+    "objects": [
+        {
+            "id": 1,
+            "type": "circle",
+            "color": {
+                "red": 204,
+                "green": 164,
+                "blue": 58
+            },
+            "points": {
+                "center": {
+                    "x": 408,
+                    "y": 74
+                },
+                "radius": 66,
+                "rotation": 280
+            }
+        },
+        {
+            "id": 2,
+            "type": "square",
+            "color": {
+                "red": 33,
+                "green": 122,
+                "blue": 237
+            },
+            "points": {
+                "topleft": {
+                    "x": 411,
+                    "y": 395
+                },
+                "side": 89,
+                "rotation": 241
+            }
+        },
+        {
+            "id": 3,
+            "type": "ellipse",
+            "color": {
+                "red": 117,
+                "green": 53,
+                "blue": 160
+            },
+            "points": {
+                "center": {
+                    "x": 53,
+                    "y": 159
+                },
+                "radii": {
+                    "width": 33,
+                    "height": 70
+                },
+                "rotation": 132
+            }
+        },
+        {
+            "id": 4,
+            "type": "circle",
+            "color": {
+                "red": 137,
+                "green": 103,
+                "blue": 227
+            },
+            "points": {
+                "center": {
+                    "x": 401,
+                    "y": 128
+                },
+                "radius": 24,
+                "rotation": 336
+            }
+        },
+        {
+            "id": 5,
+            "type": "circle",
+            "color": {
+                "red": 237,
+                "green": 217,
+                "blue": 25
+            },
+            "points": {
+                "center": {
+                    "x": 507,
+                    "y": 547
+                },
+                "radius": 19,
+                "rotation": 348
+            }
+        },
+        {
+            "id": 6,
+            "type": "rectangle",
+            "color": {
+                "red": 66,
+                "green": 160,
+                "blue": 64
+            },
+            "points": {
+                "topleft": {
+                    "x": 329,
+                    "y": 86
+                },
+                "sides": {
+                    "width": 95,
+                    "height": 149
+                },
+                "rotation": 198
+            }
+        }
+    ],
+    "relations": [
+        {
+            "obj1": 3,
+            "obj2": 6
+        }
+    ]
+}

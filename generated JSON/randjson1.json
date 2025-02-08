@@ -1,0 +1,136 @@
+{
+    "size": {
+        "width": 646,
+        "height": 783
+    },
+    "background": {
+        "red": 15,
+        "green": 82,
+        "blue": 211
+    },
+    "objects": [
+        {
+            "id": 1,
+            "type": "circle",
+            "color": {
+                "red": 69,
+                "green": 222,
+                "blue": 221
+            },
+            "points": {
+                "center": {
+                    "x": 127,
+                    "y": 140
+                },
+                "radius": 23,
+                "rotation": 2
+            }
+        },
+        {
+            "id": 2,
+            "type": "rectangle",
+            "color": {
+                "red": 221,
+                "green": 77,
+                "blue": 129
+            },
+            "points": {
+                "topleft": {
+                    "x": 520,
+                    "y": 147
+                },
+                "sides": {
+                    "width": 118,
+                    "height": 52
+                },
+                "rotation": 168
+            }
+        },
+        {
+            "id": 3,
+            "type": "ellipse",
+            "color": {
+                "red": 210,
+                "green": 54,
+                "blue": 202
+            },
+            "points": {
+                "center": {
+                    "x": 205,
+                    "y": 112
+                },
+                "radii": {
+                    "width": 51,
+                    "height": 84
+                },
+                "rotation": 169
+            }
+        },
+        {
+            "id": 4,
+            "type": "square",
+            "color": {
+                "red": 247,
+                "green": 155,
+                "blue": 80
+            },
+            "points": {
+                "topleft": {
+                    "x": 98,
+                    "y": 490
+                },
+                "side": 132,
+                "rotation": 94
+            }
+        },
+        {
+            "id": 5,
+            "type": "triangle",
+            "color": {
+                "red": 230,
+                "green": 103,
+                "blue": 10
+            },
+            "points": {
+                "vertices": [
+                    {
+                        "x": 261,
+                        "y": 624
+                    },
+                    {
+                        "x": 198,
+                        "y": 654
+                    },
+                    {
+                        "x": 233,
+                        "y": 714
+                    }
+                ],
+                "rotation": 266
+            }
+        },
+        {
+            "id": 6,
+            "type": "square",
+            "color": {
+                "red": 55,
+                "green": 9,
+                "blue": 9
+            },
+            "points": {
+                "topleft": {
+                    "x": 503,
+                    "y": 42
+                },
+                "side": 45,
+                "rotation": 125
+            }
+        }
+    ],
+    "relations": [
+        {
+            "obj1": 3,
+            "obj2": 4
+        }
+    ]
+}

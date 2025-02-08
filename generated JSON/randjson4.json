@@ -1,0 +1,48 @@
+{
+    "size": {
+        "width": 540,
+        "height": 537
+    },
+    "background": {
+        "red": 223,
+        "green": 90,
+        "blue": 29
+    },
+    "objects": [
+        {
+            "id": 1,
+            "type": "circle",
+            "color": {
+                "red": 164,
+                "green": 141,
+                "blue": 202
+            },
+            "points": {
+                "center": {
+                    "x": 313,
+                    "y": 127
+                },
+                "radius": 24,
+                "rotation": 174
+            }
+        },
+        {
+            "id": 2,
+            "type": "circle",
+            "color": {
+                "red": 222,
+                "green": 144,
+                "blue": 112
+            },
+            "points": {
+                "center": {
+                    "x": 274,
+                    "y": 421
+                },
+                "radius": 20,
+                "rotation": 214
+            }
+        }
+    ],
+    "relations": []
+}
