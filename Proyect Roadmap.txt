@@ -7,6 +7,9 @@ El output es un json con la descripción parametrizada de cada una de las figura
 - shapes are going to vary from 0, to [TO DEFINE]
 
 3. Generación del Dataset Sintético
+- Corregir generación de triangulos
+- Consultar el comportamiento de los poligonos
+
 4. Preprocesamiento de Datos
 5. Diseño y Selección de la Arquitectura de la Red Neuronal
 6. Implementación del Modelo
