@@ -4,16 +4,35 @@ El output es un json con la descripción parametrizada de cada una de las figura
 
 2. Diseño del Esquema de Datos y la Generación de JSON
 - The relationships of proximity go from the closest shape to the user, to the seccond closest. Then from the seccond to the third, and so on. 
-- shapes are going to vary from 0, to [TO DEFINE]
+- Only add to the relations shapes that don't eclipse each other by the Oclusion value.
+- NO POLYGONS.
+
 
 3. Generación del Dataset Sintético
-- Corregir generación de triangulos
-- Consultar el comportamiento de los poligonos
+- Oclusion 95%.
+- Minimum diference of 60 in at least one of the RGB components.
+- Chance of 2% for absolute black and 2% absolute white.
 
 4. Preprocesamiento de Datos
+- Despide random generating images, adding additional augmentation is recomended.
+
 5. Diseño y Selección de la Arquitectura de la Red Neuronal
+- Introduce técnicas de regularización (dropout, data augmentation) para evitar que el modelo se sobreentrene en datos sintéticos.
+
 6. Implementación del Modelo
+- Pytorch because of it's learning curve and debuging qualities
+
 7. Evaluación y Validación
 8. Integración del Sistema y Generación de Salidas en JSON
 9. Pruebas Finales y Despliegue
 
+
+QUESTIONS: 
+- Los pligonos son geometricos y uniformes, o son una serie aleatoria de formas?
+- Las imágenes van a ser cuadradas?
+- Tamaño de las imágenes?
+- De que color será el fondo?
+- Cantidad maxima de formas?
+
+CRITICAL:
+- No polygons.

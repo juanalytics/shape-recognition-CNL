@@ -207,7 +207,7 @@ def create_random_image_and_json(image_id):
             # Use the smaller area of the two shapes.
             small_area = min(area_i, area_j)
             # If the overlapping area is more than 90% of the smaller shape, skip this relation.
-            if small_area > 0 and (inter_area / small_area) > 0.9:
+            if small_area > 0 and (inter_area / small_area) > 0.95:
                 continue
 
             if bboxes_intersect(bbox_i, bbox_j):
