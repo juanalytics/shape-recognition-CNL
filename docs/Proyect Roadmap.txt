@@ -7,7 +7,7 @@ El output es un json con la descripción parametrizada de cada una de las figura
 - Only add to the relations shapes that don't eclipse each other by the Oclusion value.
 - NO POLYGONS.
 
-
+'small change'
 3. Generación del Dataset Sintético
 - Oclusion 95%.
 - Minimum diference of 60 in at least one of the RGB components.
