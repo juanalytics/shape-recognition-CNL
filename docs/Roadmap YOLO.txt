@@ -1,0 +1,14 @@
+
+PATH: 
+Go for Pretrained YOLO + OpenCV if you want a quick and effective solution without much training.
+Only train YOLO from scratch if OpenCV struggles to classify shapes or if the pretrained YOLO model does not generalize well.
+
+CONDA: 
+# To activate this environment, use
+#
+#     $ conda activate yolo-env
+#
+# To deactivate an active environment, use
+#
+#     $ conda deactivate
+

@@ -7,14 +7,20 @@ El output es un json con la descripción parametrizada de cada una de las figura
 - Only add to the relations shapes that don't eclipse each other by the Oclusion value.
 - NO POLYGONS.
 
-'small change'
 3. Generación del Dataset Sintético
 - Oclusion 95%.
 - Minimum diference of 60 in at least one of the RGB components.
 - Chance of 2% for absolute black and 2% absolute white.
+- 30% chance of white backround
+- 5-6 shapes maximum, trained with 7. 
+- Closed polygons
+- Size 100x800
 
-4. Preprocesamiento de Datos
+4. Data Storage & preprocessing
 - Despide random generating images, adding additional augmentation is recomended.
+- When augmenting an image, also modify the JSON anotation.
+- separate directories for training, validation, and testing
+- Develop a custom Dataset class loading image & json
 
 5. Diseño y Selección de la Arquitectura de la Red Neuronal
 - Introduce técnicas de regularización (dropout, data augmentation) para evitar que el modelo se sobreentrene en datos sintéticos.
@@ -28,11 +34,8 @@ El output es un json con la descripción parametrizada de cada una de las figura
 
 
 QUESTIONS: 
-- Los pligonos son geometricos y uniformes, o son una serie aleatoria de formas?
-- Las imágenes van a ser cuadradas?
-- Tamaño de las imágenes?
-- De que color será el fondo?
-- Cantidad maxima de formas?
+- En el segundo caso, tienen que ser poligonos cerrados?
+
 
 CRITICAL:
 - No polygons.
