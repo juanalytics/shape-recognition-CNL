@@ -28,3 +28,29 @@ saving different versions of your .pt file is crucial because:
 How to Save Different Versions?
 Automatically save the best model during training:
 model.train(data="shapes.yaml", epochs=50, batch=8, imgsz=640, save=True)
+
+
+YOLO makes it's own augmentation during training time: 
+Random Contrast Adjustments
+Random Hue and Saturation Changes
+Gaussian Blur
+
+But we are still going to do the following augmentations before training: 
+Grayscale Conversion (5-10% of images)
+Salt-and-Pepper Noise
+
+this is because YOLO augmentation will allow to augmentate each image's collor differently. 
+
+There are two stages in training: 
+1. Stage 1 (Single Shapes + Partial Shapes) is teaching basic shape recognition.
+✅Start with 2,000 images in Stage 1.
+✅ If validation accuracy is poor, increase to 3,000.
+✅ Training time should remain reasonable on a GTX 1050 Ti.
+
+2. tage 2 (Multiple Overlapping Shapes) is where more data matters most. 5,000 images may be enough if shapes are diverse.
+✅ Start with 5,000 images in Stage 2.
+✅ If validation accuracy is high, no need to go to 10,000.
+✅ If overfitting occurs, increase dataset size to 7,000+.
+
+To ensure that lables to the images are properly setup, there's a script that draws the boundingboxes over the original
+images, so one can visually verify that everything is generaly okay, before training, that script is: show_labeled_images.py

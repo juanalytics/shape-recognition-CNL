@@ -6,6 +6,8 @@ from tqdm import tqdm
 IMG_SIZE = 640
 BASE_SIZE = 50  # minimum base size for shapes
 MAX_SCALE = 4.0  # maximum scale factor (up to 4 times base size)
+NO_SHAPE_PROB = 0.1  # 10% chance to generate an image with no shapes
+MAX_ATTEMPTS = 10  # maximum attempts to generate a valid image
 
 # Define shape classes according to updated .yaml:
 # 0: circle, 1: square, 2: triangle, 3: rectangle, 4: ellipse, 5: pentagon, 6: polygon (n-sided, n from 6 to 20)
@@ -41,7 +43,6 @@ def compute_yolo_label(x_min, y_min, x_max, y_max, img_size=IMG_SIZE):
     return x_center / img_size, y_center / img_size, box_w / img_size, box_h / img_size
 
 # Drawing functions for each shape type:
-
 def draw_circle(draw, center, size, color):
     r = size / 2
     x, y = center
@@ -63,7 +64,6 @@ def draw_square(draw, center, size, color, rotation=0):
 
 def draw_triangle(draw, center, size, color, rotation=0):
     x, y = center
-    # Using radius such that side approximates size
     r = size / math.sqrt(3)
     pts = []
     for i in range(3):
@@ -76,7 +76,6 @@ def draw_triangle(draw, center, size, color, rotation=0):
 
 def draw_rectangle(draw, center, size, color, rotation=0):
     x, y = center
-    # Choose a random aspect ratio different from 1 for rectangle
     aspect = random.uniform(0.5, 1.5)
     w, h = size, size * aspect
     half_w, half_h = w / 2, h / 2
@@ -91,7 +90,6 @@ def draw_rectangle(draw, center, size, color, rotation=0):
 
 def draw_ellipse(draw, center, size, color):
     x, y = center
-    # Random aspect ratio for ellipse
     aspect = random.uniform(0.5, 1.5)
     w, h = size, size * aspect
     bbox = [x - w/2, y - h/2, x + w/2, y + h/2]
@@ -112,7 +110,6 @@ def draw_regular_polygon(draw, center, size, n_sides, color, rotation=0):
     return min(xs), min(ys), max(xs), max(ys)
 
 def choose_shape_and_draw(draw, center, base_size, shape_type, background_color, used_colors):
-    # Randomly choose a scaling factor (between 1 and MAX_SCALE) for size variation.
     scale = random.uniform(1.0, MAX_SCALE)
     size = base_size * scale
     rotation = random.uniform(0, 2 * math.pi)
@@ -131,12 +128,11 @@ def choose_shape_and_draw(draw, center, base_size, shape_type, background_color,
     elif shape_type == "pentagon":
         bbox = draw_pentagon(draw, center, size, color, rotation)
     elif shape_type == "polygon":
-        # For "polygon" class, choose a random number of sides between 6 and 20.
         n_sides = random.randint(6, 20)
         bbox = draw_regular_polygon(draw, center, size, n_sides, color, rotation)
     else:
         bbox = draw_circle(draw, center, size, color)
-    return bbox
+    return bbox, size  # also return size for area computation
 
 def get_random_position_inside(img_size, bbox_width, bbox_height):
     x = random.uniform(bbox_width/2, img_size - bbox_width/2)
@@ -144,7 +140,6 @@ def get_random_position_inside(img_size, bbox_width, bbox_height):
     return (x, y)
 
 def get_random_position_partial(img_size, bbox_width, bbox_height):
-    # Force a shape to be partially outside by choosing an edge randomly.
     edge = random.choice(["left", "right", "top", "bottom"])
     if edge == "left":
         x = random.uniform(-bbox_width/2, bbox_width/2)
@@ -178,64 +173,85 @@ def generate_image(scenario, base_size):
     Generates an image and its corresponding YOLO labels.
     Scenarios:
       1 - Single Shape fully inside the image.
-      2 - Single Shape partially outside (cut-off).
+      2 - Single Shape partially outside (cut-off edges).
       3 - Multiple shapes (2 to 6), where 30-50% are forced to extend off the image.
-      4 - Full training set mode (mix of scenarios chosen randomly).
+      4 - Full Training Set mode (mix of scenarios chosen randomly).
+      
+    This function will discard images where any shape's visible (clipped) area is less than 10% 
+    of its computed bounding box area.
     """
-    # Create a new white background image.
-    # Occasionally (20% chance) use a colored background for robustness.
-    if random.random() < 0.2:
-        bg_color = (random.randint(150, 255), random.randint(150, 255), random.randint(150, 255))
-    else:
+    # With some probability, return a blank image (no shapes)
+    if random.random() < NO_SHAPE_PROB:
         bg_color = (255, 255, 255)
-    img = Image.new("RGB", (IMG_SIZE, IMG_SIZE), bg_color)
-    draw = ImageDraw.Draw(img)
-    labels = []
-    used_colors = []  # To ensure high contrast among shapes in the same image.
+        return Image.new("RGB", (IMG_SIZE, IMG_SIZE), bg_color), []
     
-    # For scenario 4, randomly pick one of the other scenarios.
-    if scenario == 4:
-        scenario = random.choice([1, 2, 3])
-    
-    if scenario in [1, 2]:
-        # Single shape case.
-        shape_type = random.choice(shape_classes)
-        # Decide size.
-        scale = random.uniform(1.0, MAX_SCALE)
-        size = base_size * scale
-        # Estimate bbox dimensions as 'size' for simplicity.
-        bbox_width = size
-        bbox_height = size
-        if scenario == 1:
-            center = get_random_position_inside(IMG_SIZE, bbox_width, bbox_height)
+    for attempt in range(MAX_ATTEMPTS):
+        # Create a new background image.
+        if random.random() < 0.2:
+            bg_color = (random.randint(150, 255), random.randint(150, 255), random.randint(150, 255))
         else:
-            center = get_random_position_partial(IMG_SIZE, bbox_width, bbox_height)
-        bbox = choose_shape_and_draw(draw, center, base_size, shape_type, bg_color, used_colors)
-        x_min, y_min, x_max, y_max = clip_bbox(bbox[0], bbox[1], bbox[2], bbox[3])
-        class_id = shape_classes.index(shape_type)
-        x_c, y_c, w_norm, h_norm = compute_yolo_label(x_min, y_min, x_max, y_max)
-        labels.append(f"{class_id} {x_c:.6f} {y_c:.6f} {w_norm:.6f} {h_norm:.6f}")
-    elif scenario == 3:
-        # Multiple shapes per image.
-        n_shapes = random.randint(2, 6)
-        for _ in range(n_shapes):
+            bg_color = (255, 255, 255)
+        img = Image.new("RGB", (IMG_SIZE, IMG_SIZE), bg_color)
+        draw = ImageDraw.Draw(img)
+        labels = []
+        used_colors = []
+        valid = True  # flag to check if all shapes are sufficiently visible
+        
+        if scenario == 4:
+            scenario = random.choice([1, 2, 3])
+        
+        if scenario in [1, 2]:
+            # Single shape case; attempt up to MAX_ATTEMPTS
             shape_type = random.choice(shape_classes)
-            # Decide randomly if this shape should extend off-screen:
-            if random.random() < random.uniform(0.3, 0.5):
-                pos_func = get_random_position_partial
-            else:
-                pos_func = get_random_position_inside
             scale = random.uniform(1.0, MAX_SCALE)
             size = base_size * scale
             bbox_width = size
             bbox_height = size
-            center = pos_func(IMG_SIZE, bbox_width, bbox_height)
-            bbox = choose_shape_and_draw(draw, center, base_size, shape_type, bg_color, used_colors)
-            x_min, y_min, x_max, y_max = clip_bbox(bbox[0], bbox[1], bbox[2], bbox[3])
-            class_id = shape_classes.index(shape_type)
-            x_c, y_c, w_norm, h_norm = compute_yolo_label(x_min, y_min, x_max, y_max)
-            labels.append(f"{class_id} {x_c:.6f} {y_c:.6f} {w_norm:.6f} {h_norm:.6f}")
-    return img, labels
+            if scenario == 1:
+                center = get_random_position_inside(IMG_SIZE, bbox_width, bbox_height)
+            else:
+                center = get_random_position_partial(IMG_SIZE, bbox_width, bbox_height)
+            # Draw the shape on the image and get its bounding box
+            original_bbox, shape_size = choose_shape_and_draw(draw, center, base_size, shape_type, bg_color, used_colors)
+            clipped_bbox = clip_bbox(original_bbox[0], original_bbox[1], original_bbox[2], original_bbox[3])
+            area_original = max(0, (original_bbox[2]-original_bbox[0]) * (original_bbox[3]-original_bbox[1]))
+            area_clipped = max(0, (clipped_bbox[2]-clipped_bbox[0]) * (clipped_bbox[3]-clipped_bbox[1]))
+            if area_original == 0 or (area_clipped/area_original) < 0.1:
+                valid = False
+            else:
+                class_id = shape_classes.index(shape_type)
+                x_c, y_c, w_norm, h_norm = compute_yolo_label(clipped_bbox[0], clipped_bbox[1], clipped_bbox[2], clipped_bbox[3])
+                labels.append(f"{class_id} {x_c:.6f} {y_c:.6f} {w_norm:.6f} {h_norm:.6f}")
+        elif scenario == 3:
+            n_shapes = random.randint(2, 6)
+            for _ in range(n_shapes):
+                shape_type = random.choice(shape_classes)
+                if random.random() < random.uniform(0.3, 0.5):
+                    pos_func = get_random_position_partial
+                else:
+                    pos_func = get_random_position_inside
+                scale = random.uniform(1.0, MAX_SCALE)
+                size = base_size * scale
+                bbox_width = size
+                bbox_height = size
+                center = pos_func(IMG_SIZE, bbox_width, bbox_height)
+                original_bbox, shape_size = choose_shape_and_draw(draw, center, base_size, shape_type, bg_color, used_colors)
+                clipped_bbox = clip_bbox(original_bbox[0], original_bbox[1], original_bbox[2], original_bbox[3])
+                area_original = max(0, (original_bbox[2]-original_bbox[0]) * (original_bbox[3]-original_bbox[1]))
+                area_clipped = max(0, (clipped_bbox[2]-clipped_bbox[0]) * (clipped_bbox[3]-clipped_bbox[1]))
+                # If any shape is less than 10% visible, mark as invalid.
+                if area_original == 0 or (area_clipped/area_original) < 0.1:
+                    valid = False
+                    break
+                else:
+                    class_id = shape_classes.index(shape_type)
+                    x_c, y_c, w_norm, h_norm = compute_yolo_label(clipped_bbox[0], clipped_bbox[1], clipped_bbox[2], clipped_bbox[3])
+                    labels.append(f"{class_id} {x_c:.6f} {y_c:.6f} {w_norm:.6f} {h_norm:.6f}")
+        # If valid image with at least one shape (or no shapes as permitted), return it.
+        if valid:
+            return img, labels
+    # If no valid image is generated after MAX_ATTEMPTS, return a blank image.
+    return Image.new("RGB", (IMG_SIZE, IMG_SIZE), (255, 255, 255)), []
 
 def main():
     print("Select dataset type:")
@@ -271,7 +287,6 @@ def main():
 
     print(f"Generating dataset: {train_count} train, {val_count} validation, {test_count} test images.")
     
-    # Generate images for each split with progress bars.
     current_index = 1
     for i in tqdm(range(train_count), desc="Generating Train Images"):
         img, labels = generate_image(dataset_type, BASE_SIZE)
