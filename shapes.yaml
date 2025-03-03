@@ -1,0 +1,5 @@
+train: Data/images/train
+val: Data/images/val
+
+nc: 7
+names: ["circle", "square", "triangle", "rectangle", "ellipse", "pentagon", "polygon"]

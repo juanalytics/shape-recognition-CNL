@@ -1,184 +1,119 @@
 {
     "size": {
-        "width": 307,
-        "height": 150
+        "width": 393,
+        "height": 209
     },
     "background": {
-        "red": 196,
-        "green": 59,
-        "blue": 148
+        "red": 255,
+        "green": 255,
+        "blue": 255
     },
     "objects": [
         {
             "id": 1,
-            "type": "polygon",
+            "type": "circle",
             "color": {
-                "red": 72,
-                "green": 45,
-                "blue": 227
+                "red": 241,
+                "green": 135,
+                "blue": 104
             },
             "points": {
-                "vertices": [
-                    {
-                        "x": 146,
-                        "y": 87
-                    },
-                    {
-                        "x": 150,
-                        "y": 99
-                    },
-                    {
-                        "x": 144,
-                        "y": 110
-                    },
-                    {
-                        "x": 131,
-                        "y": 112
-                    },
-                    {
-                        "x": 121,
-                        "y": 103
-                    },
-                    {
-                        "x": 123,
-                        "y": 90
-                    },
-                    {
-                        "x": 133,
-                        "y": 83
-                    }
-                ],
-                "rotation": 65
+                "center": {
+                    "x": 257,
+                    "y": 114
+                },
+                "radius": 36,
+                "rotation": 160
             }
         },
         {
             "id": 2,
             "type": "polygon",
             "color": {
-                "red": 50,
-                "green": 187,
-                "blue": 220
+                "red": 24,
+                "green": 33,
+                "blue": 225
             },
             "points": {
                 "vertices": [
                     {
-                        "x": 82,
-                        "y": 69
+                        "x": 231,
+                        "y": 94
                     },
                     {
-                        "x": 78,
-                        "y": 58
+                        "x": 247,
+                        "y": 126
                     },
                     {
-                        "x": 84,
-                        "y": 48
+                        "x": 237,
+                        "y": 161
                     },
                     {
-                        "x": 96,
-                        "y": 46
+                        "x": 205,
+                        "y": 177
                     },
                     {
-                        "x": 105,
-                        "y": 55
+                        "x": 170,
+                        "y": 167
                     },
                     {
-                        "x": 103,
-                        "y": 67
+                        "x": 154,
+                        "y": 135
                     },
                     {
-                        "x": 93,
-                        "y": 73
+                        "x": 164,
+                        "y": 100
+                    },
+                    {
+                        "x": 196,
+                        "y": 84
                     }
                 ],
-                "rotation": 209
+                "rotation": 20
             }
         },
         {
             "id": 3,
-            "type": "ellipse",
+            "type": "square",
             "color": {
-                "red": 153,
-                "green": 241,
-                "blue": 24
+                "red": 210,
+                "green": 23,
+                "blue": 93
             },
             "points": {
-                "center": {
-                    "x": 87,
-                    "y": 39
+                "topleft": {
+                    "x": 246,
+                    "y": 27
                 },
-                "radii": {
-                    "width": 53,
-                    "height": 13
-                },
-                "rotation": 322
+                "side": 44,
+                "rotation": 165
             }
         },
         {
             "id": 4,
-            "type": "polygon",
-            "color": {
-                "red": 106,
-                "green": 166,
-                "blue": 27
-            },
-            "points": {
-                "vertices": [
-                    {
-                        "x": 252,
-                        "y": 97
-                    },
-                    {
-                        "x": 242,
-                        "y": 93
-                    },
-                    {
-                        "x": 239,
-                        "y": 83
-                    },
-                    {
-                        "x": 243,
-                        "y": 73
-                    },
-                    {
-                        "x": 253,
-                        "y": 70
-                    },
-                    {
-                        "x": 263,
-                        "y": 74
-                    },
-                    {
-                        "x": 266,
-                        "y": 84
-                    },
-                    {
-                        "x": 262,
-                        "y": 94
-                    }
-                ],
-                "rotation": 250
-            }
-        },
-        {
-            "id": 5,
             "type": "rectangle",
             "color": {
-                "red": 101,
-                "green": 254,
-                "blue": 3
+                "red": 153,
+                "green": 49,
+                "blue": 104
             },
             "points": {
                 "topleft": {
-                    "x": 79,
-                    "y": 83
+                    "x": 267,
+                    "y": 103
                 },
                 "sides": {
-                    "width": 29,
-                    "height": 31
+                    "width": 104,
+                    "height": 96
                 },
-                "rotation": 130
+                "rotation": 270
             }
         }
     ],
-    "relations": []
+    "relations": [
+        {
+            "obj1": 2,
+            "obj2": 1
+        }
+    ]
 }

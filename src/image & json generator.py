@@ -13,7 +13,7 @@ def random_color(alpha=255):
         los canales R, G y B sea lo suficientemente grande.
     """
     r = random.random()
-    if r < 0.02:
+    if r < 0.2:
         return (0, 0, 0, alpha)
     elif r < 0.04:
         return (255, 255, 255, alpha)
@@ -40,7 +40,7 @@ def create_random_image_and_json(image_id):
     
     # Crear un color de fondo aleatorio y la imagen (RGBA para composición).
     r = random.random()
-    if r <= 0.3:
+    if r <= 1:
         bg_color = (255, 255, 255, 255)
     else:
         bg_color = random_color(alpha=255)
