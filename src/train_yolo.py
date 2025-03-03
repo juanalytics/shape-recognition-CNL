@@ -10,12 +10,12 @@ def main():
     torch.manual_seed(42)
 
     # Load YOLO model
-    model = YOLO("yolov8n.pt")
+    model = YOLO("models/best2222.pt")
 
     # Set dataset YAML path dynamically
     dataset_yaml = os.path.abspath("D:/Repos/shape-recognition-CNL/shapes.yaml")
 
-    epochs = 50
+    epochs = 25
     base_batch_size = 8   # Safe starting value for GTX 1050 Ti
     max_batch_size = 32   # Upper limit to test
     best_batch_size = base_batch_size  # Default to start
@@ -33,6 +33,7 @@ def main():
                 half=True,           # Enable FP16 precision
                 workers=8,
                 cos_lr=True,         # Use One-Cycle LR policy
+                lr0=0.005,
                 freeze=10,           # Freeze first 10 layers during initial tests
                 mosaic=True,         # Enable mosaic augmentation
                 mixup=0.0,
@@ -55,7 +56,7 @@ def main():
         device="cuda",
         half=True,              # Enable FP16 precision for speed and lower memory usage
         workers=8,
-        lr0=0.01,               # Initial learning rate
+        lr0=0.005,               # Initial learning rate
         lrf=0.001,              # Final learning rate (for cosine decay)
         optimizer="AdamW",
         momentum=0.937,
