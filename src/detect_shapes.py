@@ -4,7 +4,7 @@ import random
 from ultralytics import YOLO
 
 # Constants
-MODEL_PATH = "yolov8n.pt"
+MODEL_PATH = "models/yolov8n.pt"
 IMAGE_FOLDER = os.path.join("Data", "raw")
 NUM_IMAGES = 10
 

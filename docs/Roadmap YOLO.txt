@@ -12,3 +12,19 @@ CONDA:
 #
 #     $ conda deactivate
 
+Your GTX 1050 Ti (4GB VRAM) has limited memory, so:
+Recommended batch size: 8 - 16
+✅ Start with batch size = 8, increase only if training runs without crashing..
+
+🔍 YOLOv8n has 225 layers.
+We are going to train only in the neck and head layers
+so we are fixing the first 50 layers
+
+saving different versions of your .pt file is crucial because:
+✅ It allows rollback if the latest model is worse.
+✅ You can compare different training runs to find the best model.
+✅ If the training process fails or gets interrupted, you don’t lose progress.
+
+How to Save Different Versions?
+Automatically save the best model during training:
+model.train(data="shapes.yaml", epochs=50, batch=8, imgsz=640, save=True)
