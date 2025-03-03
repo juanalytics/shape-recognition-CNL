@@ -1,119 +1,13 @@
 {
     "size": {
-        "width": 393,
-        "height": 209
+        "width": 396,
+        "height": 297
     },
     "background": {
         "red": 255,
         "green": 255,
         "blue": 255
     },
-    "objects": [
-        {
-            "id": 1,
-            "type": "circle",
-            "color": {
-                "red": 241,
-                "green": 135,
-                "blue": 104
-            },
-            "points": {
-                "center": {
-                    "x": 257,
-                    "y": 114
-                },
-                "radius": 36,
-                "rotation": 160
-            }
-        },
-        {
-            "id": 2,
-            "type": "polygon",
-            "color": {
-                "red": 24,
-                "green": 33,
-                "blue": 225
-            },
-            "points": {
-                "vertices": [
-                    {
-                        "x": 231,
-                        "y": 94
-                    },
-                    {
-                        "x": 247,
-                        "y": 126
-                    },
-                    {
-                        "x": 237,
-                        "y": 161
-                    },
-                    {
-                        "x": 205,
-                        "y": 177
-                    },
-                    {
-                        "x": 170,
-                        "y": 167
-                    },
-                    {
-                        "x": 154,
-                        "y": 135
-                    },
-                    {
-                        "x": 164,
-                        "y": 100
-                    },
-                    {
-                        "x": 196,
-                        "y": 84
-                    }
-                ],
-                "rotation": 20
-            }
-        },
-        {
-            "id": 3,
-            "type": "square",
-            "color": {
-                "red": 210,
-                "green": 23,
-                "blue": 93
-            },
-            "points": {
-                "topleft": {
-                    "x": 246,
-                    "y": 27
-                },
-                "side": 44,
-                "rotation": 165
-            }
-        },
-        {
-            "id": 4,
-            "type": "rectangle",
-            "color": {
-                "red": 153,
-                "green": 49,
-                "blue": 104
-            },
-            "points": {
-                "topleft": {
-                    "x": 267,
-                    "y": 103
-                },
-                "sides": {
-                    "width": 104,
-                    "height": 96
-                },
-                "rotation": 270
-            }
-        }
-    ],
-    "relations": [
-        {
-            "obj1": 2,
-            "obj2": 1
-        }
-    ]
+    "objects": [],
+    "relations": []
 }

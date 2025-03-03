@@ -1,4 +1,4 @@
-train: D:\Repos\shape-recognition-CNL\Data\images\train
+train: D:\Repos\shape-recognition-CNL\Data\images\augmented\train
 val: D:\Repos\shape-recognition-CNL\Data\images\val
 test: D:\Repos\shape-recognition-CNL\Data\images\test
 

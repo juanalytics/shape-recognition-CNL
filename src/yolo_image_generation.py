@@ -1,16 +1,23 @@
 import os, random, math
+import json
 from PIL import Image, ImageDraw
 from tqdm import tqdm
 
 # Constants
 IMG_SIZE = 640
-BASE_SIZE = 50  # minimum base size for shapes
-MAX_SCALE = 4.0  # maximum scale factor (up to 4 times base size)
-NO_SHAPE_PROB = 0.1  # 10% chance to generate an image with no shapes
-MAX_ATTEMPTS = 10  # maximum attempts to generate a valid image
+BASE_SIZE = 50          # Minimum base size for shapes
+NO_SHAPE_PROB = 0.1     # 10% chance to generate an image with no shapes
+MAX_ATTEMPTS = 10       # Maximum attempts to generate a valid image
+VISIBILITY_THRESHOLD = 0.1  # At least 10% of the shape's area must be visible
 
-# Define shape classes according to updated .yaml:
-# 0: circle, 1: square, 2: triangle, 3: rectangle, 4: ellipse, 5: pentagon, 6: polygon (n-sided, n from 6 to 20)
+# Default parameters (can be overridden by user input)
+DEFAULT_MAX_ASPECT = 5.0   # Default maximum aspect ratio (e.g., 1:5)
+EXTREME_MAX_ASPECT = 10.0  # Extreme maximum aspect ratio (up to 1:10) with 30% chance
+QUAD_RATIO = 0.5           # Proportion of squares & rectangles vs. other shapes
+MAX_SCALE = 4.0            # Maximum scale factor (up to 4 times BASE_SIZE); will be updated via prompt
+
+# Define shape classes (do not add new ones):
+# 0: circle, 1: square, 2: triangle, 3: rectangle, 4: ellipse, 5: pentagon, 6: polygon
 shape_classes = ["circle", "square", "triangle", "rectangle", "ellipse", "pentagon", "polygon"]
 
 def get_luminance(color):
@@ -18,7 +25,6 @@ def get_luminance(color):
     return 0.299 * r + 0.587 * g + 0.114 * b
 
 def random_color(background_color, used_colors=[], min_diff=100):
-    # Generate a random color with sufficient contrast versus background and any already-used colors.
     for _ in range(100):
         cand = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         if abs(get_luminance(cand) - get_luminance(background_color)) < 100:
@@ -76,8 +82,15 @@ def draw_triangle(draw, center, size, color, rotation=0):
 
 def draw_rectangle(draw, center, size, color, rotation=0):
     x, y = center
-    aspect = random.uniform(0.5, 1.5)
-    w, h = size, size * aspect
+    # Use extreme aspect ratios for more diversity.
+    if random.random() < 0.3:
+        aspect = random.uniform(1.0, EXTREME_MAX_ASPECT)
+    else:
+        aspect = random.uniform(1.0, DEFAULT_MAX_ASPECT)
+    if random.random() < 0.5:
+        w, h = size * aspect, size
+    else:
+        w, h = size, size * aspect
     half_w, half_h = w / 2, h / 2
     pts = [(-half_w, -half_h), (half_w, -half_h), (half_w, half_h), (-half_w, half_h)]
     sin_t = math.sin(rotation)
@@ -90,8 +103,14 @@ def draw_rectangle(draw, center, size, color, rotation=0):
 
 def draw_ellipse(draw, center, size, color):
     x, y = center
-    aspect = random.uniform(0.5, 1.5)
-    w, h = size, size * aspect
+    if random.random() < 0.3:
+        aspect = random.uniform(1.0, EXTREME_MAX_ASPECT)
+    else:
+        aspect = random.uniform(1.0, DEFAULT_MAX_ASPECT)
+    if random.random() < 0.5:
+        w, h = size * aspect, size
+    else:
+        w, h = size, size * aspect
     bbox = [x - w/2, y - h/2, x + w/2, y + h/2]
     draw.ellipse(bbox, fill=color)
     return bbox
@@ -132,7 +151,7 @@ def choose_shape_and_draw(draw, center, base_size, shape_type, background_color,
         bbox = draw_regular_polygon(draw, center, size, n_sides, color, rotation)
     else:
         bbox = draw_circle(draw, center, size, color)
-    return bbox, size  # also return size for area computation
+    return bbox, size
 
 def get_random_position_inside(img_size, bbox_width, bbox_height):
     x = random.uniform(bbox_width/2, img_size - bbox_width/2)
@@ -150,7 +169,7 @@ def get_random_position_partial(img_size, bbox_width, bbox_height):
     elif edge == "top":
         x = random.uniform(bbox_width/2, img_size - bbox_width/2)
         y = random.uniform(-bbox_height/2, bbox_height/2)
-    else:  # bottom
+    else:
         x = random.uniform(bbox_width/2, img_size - bbox_width/2)
         y = random.uniform(img_size - bbox_height/2, img_size + bbox_height/2)
     return (x, y)
@@ -176,9 +195,8 @@ def generate_image(scenario, base_size):
       2 - Single Shape partially outside (cut-off edges).
       3 - Multiple shapes (2 to 6), where 30-50% are forced to extend off the image.
       4 - Full Training Set mode (mix of scenarios chosen randomly).
-      
-    This function will discard images where any shape's visible (clipped) area is less than 10% 
-    of its computed bounding box area.
+    
+    Discards shapes if less than 10% of their computed bounding box area is visible.
     """
     # With some probability, return a blank image (no shapes)
     if random.random() < NO_SHAPE_PROB:
@@ -186,7 +204,6 @@ def generate_image(scenario, base_size):
         return Image.new("RGB", (IMG_SIZE, IMG_SIZE), bg_color), []
     
     for attempt in range(MAX_ATTEMPTS):
-        # Create a new background image.
         if random.random() < 0.2:
             bg_color = (random.randint(150, 255), random.randint(150, 255), random.randint(150, 255))
         else:
@@ -195,14 +212,22 @@ def generate_image(scenario, base_size):
         draw = ImageDraw.Draw(img)
         labels = []
         used_colors = []
-        valid = True  # flag to check if all shapes are sufficiently visible
+        valid = True
+        
+        # Use customizable shape proportions:
+        quad_shapes = ["square", "rectangle"]
+        other_shapes = [s for s in shape_classes if s not in quad_shapes]
+        def choose_shape():
+            if random.random() < QUAD_RATIO:
+                return random.choice(quad_shapes)
+            else:
+                return random.choice(other_shapes)
         
         if scenario == 4:
             scenario = random.choice([1, 2, 3])
         
         if scenario in [1, 2]:
-            # Single shape case; attempt up to MAX_ATTEMPTS
-            shape_type = random.choice(shape_classes)
+            shape_type = choose_shape()
             scale = random.uniform(1.0, MAX_SCALE)
             size = base_size * scale
             bbox_width = size
@@ -211,12 +236,11 @@ def generate_image(scenario, base_size):
                 center = get_random_position_inside(IMG_SIZE, bbox_width, bbox_height)
             else:
                 center = get_random_position_partial(IMG_SIZE, bbox_width, bbox_height)
-            # Draw the shape on the image and get its bounding box
             original_bbox, shape_size = choose_shape_and_draw(draw, center, base_size, shape_type, bg_color, used_colors)
             clipped_bbox = clip_bbox(original_bbox[0], original_bbox[1], original_bbox[2], original_bbox[3])
             area_original = max(0, (original_bbox[2]-original_bbox[0]) * (original_bbox[3]-original_bbox[1]))
             area_clipped = max(0, (clipped_bbox[2]-clipped_bbox[0]) * (clipped_bbox[3]-clipped_bbox[1]))
-            if area_original == 0 or (area_clipped/area_original) < 0.1:
+            if area_original == 0 or (area_clipped/area_original) < VISIBILITY_THRESHOLD:
                 valid = False
             else:
                 class_id = shape_classes.index(shape_type)
@@ -225,7 +249,7 @@ def generate_image(scenario, base_size):
         elif scenario == 3:
             n_shapes = random.randint(2, 6)
             for _ in range(n_shapes):
-                shape_type = random.choice(shape_classes)
+                shape_type = choose_shape()
                 if random.random() < random.uniform(0.3, 0.5):
                     pos_func = get_random_position_partial
                 else:
@@ -239,21 +263,50 @@ def generate_image(scenario, base_size):
                 clipped_bbox = clip_bbox(original_bbox[0], original_bbox[1], original_bbox[2], original_bbox[3])
                 area_original = max(0, (original_bbox[2]-original_bbox[0]) * (original_bbox[3]-original_bbox[1]))
                 area_clipped = max(0, (clipped_bbox[2]-clipped_bbox[0]) * (clipped_bbox[3]-clipped_bbox[1]))
-                # If any shape is less than 10% visible, mark as invalid.
-                if area_original == 0 or (area_clipped/area_original) < 0.1:
+                if area_original == 0 or (area_clipped/area_original) < VISIBILITY_THRESHOLD:
                     valid = False
                     break
                 else:
                     class_id = shape_classes.index(shape_type)
                     x_c, y_c, w_norm, h_norm = compute_yolo_label(clipped_bbox[0], clipped_bbox[1], clipped_bbox[2], clipped_bbox[3])
                     labels.append(f"{class_id} {x_c:.6f} {y_c:.6f} {w_norm:.6f} {h_norm:.6f}")
-        # If valid image with at least one shape (or no shapes as permitted), return it.
         if valid:
             return img, labels
-    # If no valid image is generated after MAX_ATTEMPTS, return a blank image.
     return Image.new("RGB", (IMG_SIZE, IMG_SIZE), (255, 255, 255)), []
 
 def main():
+    # Prompt user for new parameters:
+    try:
+        dma_input = input("Enter default maximum aspect ratio for rectangles/ellipses (default 5.0): ").strip()
+        default_max_aspect = float(dma_input) if dma_input != "" else 5.0
+    except ValueError:
+        default_max_aspect = 5.0
+
+    try:
+        ema_input = input("Enter extreme maximum aspect ratio for rectangles/ellipses (default 10.0): ").strip()
+        extreme_max_aspect = float(ema_input) if ema_input != "" else 10.0
+    except ValueError:
+        extreme_max_aspect = 10.0
+
+    try:
+        quad_input = input("Enter proportion of squares & rectangles (0 to 1, default 0.5): ").strip()
+        quad_ratio = float(quad_input) if quad_input != "" else 0.5
+    except ValueError:
+        quad_ratio = 0.5
+
+    try:
+        ms_input = input("Enter maximum scale factor for shapes (default 4.0): ").strip()
+        max_scale_input = float(ms_input) if ms_input != "" else 4.0
+    except ValueError:
+        max_scale_input = 4.0
+
+    # Update globals
+    global DEFAULT_MAX_ASPECT, EXTREME_MAX_ASPECT, QUAD_RATIO, MAX_SCALE
+    DEFAULT_MAX_ASPECT = default_max_aspect
+    EXTREME_MAX_ASPECT = extreme_max_aspect
+    QUAD_RATIO = quad_ratio
+    MAX_SCALE = max_scale_input
+
     print("Select dataset type:")
     print("  (1) Single Shape (fully inside)")
     print("  (2) Partial Shape (cut-off edges)")
