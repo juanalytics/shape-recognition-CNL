@@ -54,3 +54,6 @@ There are two stages in training:
 
 To ensure that lables to the images are properly setup, there's a script that draws the boundingboxes over the original
 images, so one can visually verify that everything is generaly okay, before training, that script is: show_labeled_images.py
+
+After training, the following command is great for manually checking the predictions with the testing set (adjusting confidence): 
+yolo predict model=models/best23.pt source=D:/Repos/shape-recognition-CNL/datasets/Data2/images/test save=True save=True conf=0.5

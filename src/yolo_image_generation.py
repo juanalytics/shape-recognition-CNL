@@ -6,7 +6,7 @@ from tqdm import tqdm
 # Constants
 IMG_SIZE = 640
 BASE_SIZE = 50          # Minimum base size for shapes
-NO_SHAPE_PROB = 0.1     # 10% chance to generate an image with no shapes
+NO_SHAPE_PROB = 0.1     # 10% chance to generate an image with no shapes (regardless of scenario)
 MAX_ATTEMPTS = 10       # Maximum attempts to generate a valid image
 VISIBILITY_THRESHOLD = 0.1  # At least 10% of the shape's area must be visible
 
@@ -14,7 +14,42 @@ VISIBILITY_THRESHOLD = 0.1  # At least 10% of the shape's area must be visible
 DEFAULT_MAX_ASPECT = 5.0   # Default maximum aspect ratio (e.g., 1:5)
 EXTREME_MAX_ASPECT = 10.0  # Extreme maximum aspect ratio (up to 1:10) with 30% chance
 QUAD_RATIO = 0.5           # Proportion of squares & rectangles vs. other shapes
-MAX_SCALE = 4.0            # Maximum scale factor (up to 4 times BASE_SIZE); will be updated via prompt
+MAX_SCALE = 4.0            # Maximum scale factor (up to 4 times BASE_SIZE)
+MAX_SHAPES = 7             # Maximum number of shapes per image for scenario 3
+
+# Define shape classes (do not add new ones):
+# 0: circle, 1: square, 2: triangle, 3: rectangle, 4: ellipse, 5: pentagon, 6: polygon
+shape_classes = ["circle", "square", "triangle", "rectangle", "ellipse", "pentagon", "polygon"]
+
+def get_luminance(color):
+    r, g, b = color
+    return 0.299 * r + 0.587 * g + 0.114 * b
+
+def random_color(background_color, used_colors=[], min_diff=100):
+    for _ in range(100):
+        cand = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
+        if abs(get_luminance(cand) - get_luminance(background_color)) < 100:
+            continue
+        if any(math.sqrt(sum((cand[i] - uc[i])**2 for i in range(3))) < min_diff for uc in used_colors):
+            continue
+import os, random, math
+import json
+from PIL import Image, ImageDraw
+from tqdm import tqdm
+
+# Constants
+IMG_SIZE = 640
+BASE_SIZE = 50          # Minimum base size for shapes
+NO_SHAPE_PROB = 0.1     # 10% chance to generate an image with no shapes (regardless of scenario)
+MAX_ATTEMPTS = 10       # Maximum attempts to generate a valid image
+VISIBILITY_THRESHOLD = 0.05  # At least 5% of the shape's area must be visible
+
+# Default parameters (can be overridden by user input)
+DEFAULT_MAX_ASPECT = 5.0   # Default maximum aspect ratio (e.g., 1:5)
+EXTREME_MAX_ASPECT = 10.0  # Extreme maximum aspect ratio (up to 1:10) with 30% chance
+QUAD_RATIO = 0.5           # Proportion of squares & rectangles vs. other shapes
+MAX_SCALE = 4.0            # Maximum scale factor (up to 4 times BASE_SIZE)
+MAX_SHAPES = 7             # Maximum number of shapes per image for scenario 3
 
 # Define shape classes (do not add new ones):
 # 0: circle, 1: square, 2: triangle, 3: rectangle, 4: ellipse, 5: pentagon, 6: polygon
@@ -82,7 +117,6 @@ def draw_triangle(draw, center, size, color, rotation=0):
 
 def draw_rectangle(draw, center, size, color, rotation=0):
     x, y = center
-    # Use extreme aspect ratios for more diversity.
     if random.random() < 0.3:
         aspect = random.uniform(1.0, EXTREME_MAX_ASPECT)
     else:
@@ -174,8 +208,8 @@ def get_random_position_partial(img_size, bbox_width, bbox_height):
         y = random.uniform(img_size - bbox_height/2, img_size + bbox_height/2)
     return (x, y)
 
-def save_sample(img, labels, subset, index):
-    base_dir = "Data"
+def save_sample(img, labels, subset, index, dataset_version):
+    base_dir = os.path.join("datasets", dataset_version)
     img_dir = os.path.join(base_dir, "images", subset)
     lbl_dir = os.path.join(base_dir, "labels", subset)
     os.makedirs(img_dir, exist_ok=True)
@@ -193,10 +227,10 @@ def generate_image(scenario, base_size):
     Scenarios:
       1 - Single Shape fully inside the image.
       2 - Single Shape partially outside (cut-off edges).
-      3 - Multiple shapes (2 to 6), where 30-50% are forced to extend off the image.
+      3 - Multiple shapes, where the number of shapes is uniformly chosen between 1 and MAX_SHAPES.
       4 - Full Training Set mode (mix of scenarios chosen randomly).
     
-    Discards shapes if less than 10% of their computed bounding box area is visible.
+    If any generated shape fails the visibility check (less than 5% visible), it is discarded.
     """
     # With some probability, return a blank image (no shapes)
     if random.random() < NO_SHAPE_PROB:
@@ -247,7 +281,8 @@ def generate_image(scenario, base_size):
                 x_c, y_c, w_norm, h_norm = compute_yolo_label(clipped_bbox[0], clipped_bbox[1], clipped_bbox[2], clipped_bbox[3])
                 labels.append(f"{class_id} {x_c:.6f} {y_c:.6f} {w_norm:.6f} {h_norm:.6f}")
         elif scenario == 3:
-            n_shapes = random.randint(2, 6)
+            # Choose number of shapes uniformly between 1 and MAX_SHAPES.
+            n_shapes = random.randint(1, MAX_SHAPES)
             for _ in range(n_shapes):
                 shape_type = choose_shape()
                 if random.random() < random.uniform(0.3, 0.5):
@@ -264,8 +299,8 @@ def generate_image(scenario, base_size):
                 area_original = max(0, (original_bbox[2]-original_bbox[0]) * (original_bbox[3]-original_bbox[1]))
                 area_clipped = max(0, (clipped_bbox[2]-clipped_bbox[0]) * (clipped_bbox[3]-clipped_bbox[1]))
                 if area_original == 0 or (area_clipped/area_original) < VISIBILITY_THRESHOLD:
-                    valid = False
-                    break
+                    # Discard this shape (i.e. do not add a label) but continue with others.
+                    continue
                 else:
                     class_id = shape_classes.index(shape_type)
                     x_c, y_c, w_norm, h_norm = compute_yolo_label(clipped_bbox[0], clipped_bbox[1], clipped_bbox[2], clipped_bbox[3])
@@ -275,7 +310,6 @@ def generate_image(scenario, base_size):
     return Image.new("RGB", (IMG_SIZE, IMG_SIZE), (255, 255, 255)), []
 
 def main():
-    # Prompt user for new parameters:
     try:
         dma_input = input("Enter default maximum aspect ratio for rectangles/ellipses (default 5.0): ").strip()
         default_max_aspect = float(dma_input) if dma_input != "" else 5.0
@@ -300,12 +334,24 @@ def main():
     except ValueError:
         max_scale_input = 4.0
 
-    # Update globals
-    global DEFAULT_MAX_ASPECT, EXTREME_MAX_ASPECT, QUAD_RATIO, MAX_SCALE
+    try:
+        max_shapes_input = input("Enter maximum number of shapes per image (default 7): ").strip()
+        max_shapes = int(max_shapes_input) if max_shapes_input != "" else 7
+    except ValueError:
+        max_shapes = 7
+
+    try:
+        version_input = input("Enter dataset version name (default 'version_1'): ").strip()
+        dataset_version = version_input if version_input != "" else "version_1"
+    except Exception:
+        dataset_version = "version_1"
+
+    global DEFAULT_MAX_ASPECT, EXTREME_MAX_ASPECT, QUAD_RATIO, MAX_SCALE, MAX_SHAPES
     DEFAULT_MAX_ASPECT = default_max_aspect
     EXTREME_MAX_ASPECT = extreme_max_aspect
     QUAD_RATIO = quad_ratio
     MAX_SCALE = max_scale_input
+    MAX_SHAPES = max_shapes
 
     print("Select dataset type:")
     print("  (1) Single Shape (fully inside)")
@@ -333,27 +379,26 @@ def main():
         except ValueError:
             print("Invalid input. Please enter an integer.")
     
-    # Fixed dataset split: 80% train, 10% validation, 10% test.
     train_count = int(0.8 * total_images)
     val_count = int(0.1 * total_images)
     test_count = total_images - train_count - val_count
 
-    print(f"Generating dataset: {train_count} train, {val_count} validation, {test_count} test images.")
+    print(f"Generating dataset version '{dataset_version}': {train_count} train, {val_count} validation, {test_count} test images.")
     
     current_index = 1
     for i in tqdm(range(train_count), desc="Generating Train Images"):
         img, labels = generate_image(dataset_type, BASE_SIZE)
-        save_sample(img, labels, "train", current_index)
+        save_sample(img, labels, "train", current_index, dataset_version)
         current_index += 1
     current_index = 1
     for i in tqdm(range(val_count), desc="Generating Validation Images"):
         img, labels = generate_image(dataset_type, BASE_SIZE)
-        save_sample(img, labels, "val", current_index)
+        save_sample(img, labels, "val", current_index, dataset_version)
         current_index += 1
     current_index = 1
     for i in tqdm(range(test_count), desc="Generating Test Images"):
         img, labels = generate_image(dataset_type, BASE_SIZE)
-        save_sample(img, labels, "test", current_index)
+        save_sample(img, labels, "test", current_index, dataset_version)
         current_index += 1
 
     print("Dataset generation complete.")

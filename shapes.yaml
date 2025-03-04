@@ -1,6 +1,6 @@
-train: D:\Repos\shape-recognition-CNL\Data\images\augmented\train
-val: D:\Repos\shape-recognition-CNL\Data\images\val
-test: D:\Repos\shape-recognition-CNL\Data\images\test
+train: D:\Repos\shape-recognition-CNL\datasets\4\images\train
+val: D:\Repos\shape-recognition-CNL\datasets\4\images\val
+test: D:\Repos\shape-recognition-CNL\datasets\4\images\test
 
 nc: 7
 names: ["circle", "square", "triangle", "rectangle", "ellipse", "pentagon", "polygon"]
